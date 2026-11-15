@@ -1,26 +1,147 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+  --canvas: #faf9f6;
+  --surface: #ffffff;
+  --surface-subtle: #f3f2ed;
+  --surface-draw: #f0efe9;
+  --ink: #141416;
+  --ink-secondary: #52525b;
+  --ink-muted: #666670;
+  --border-hairline: rgba(20, 20, 22, 0.08);
+  --border-strong: rgba(20, 20, 22, 0.16);
+  --blue-player: #165dfc;
+  --blue-player-glow: rgba(22, 93, 252, 0.18);
+  --blue-player-border: rgba(22, 93, 252, 0.34);
+  --red-player: #d82230;
+  --red-player-glow: rgba(216, 34, 48, 0.18);
+  --red-player-border: rgba(216, 34, 48, 0.34);
+  --ease-out-ui: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-ui: cubic-bezier(0.77, 0, 0.175, 1);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-subtle: var(--surface-subtle);
+  --color-surface-draw: var(--surface-draw);
+  --color-ink: var(--ink);
+  --color-ink-secondary: var(--ink-secondary);
+  --color-ink-muted: var(--ink-muted);
+  --color-blue-player: var(--blue-player);
+  --color-red-player: var(--red-player);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+html,
+body {
+  background-color: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-variant-numeric: normal;
+  font-feature-settings: "zero" 0;
+  overflow-x: clip;
+}
+
+.tabular-clean {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "zero" 0, "tnum" 1;
+}
+
+/* Tactile button and cell interactions gated for precision pointers */
+.interactive-cell {
+  transition:
+    transform 160ms var(--ease-out-ui),
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 220ms var(--ease-out-ui),
+    opacity 220ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .interactive-cell[data-playable="true"]:hover {
+    transform: scale(1.018);
+    background-color: var(--surface-subtle);
+    border-color: var(--border-strong);
+  }
+
+  .interactive-cell[data-playable="true"][data-turn="X"]:hover {
+    border-color: var(--blue-player-border);
+    box-shadow: 0 6px 18px -8px var(--blue-player-glow);
+  }
+
+  .interactive-cell[data-playable="true"][data-turn="O"]:hover {
+    border-color: var(--red-player-border);
+    box-shadow: 0 6px 18px -8px var(--red-player-glow);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.interactive-cell[data-playable="true"]:active {
+  transform: scale(0.965);
+}
+
+.tactile-button {
+  transition:
+    transform 150ms var(--ease-out-ui),
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.tactile-button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Accessible high-contrast keyboard focus rings */
+:where(button, [role="switch"]):focus-visible {
+  outline: 2.5px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.interactive-cell[data-turn="X"]:focus-visible {
+  outline-color: var(--blue-player);
+}
+
+.interactive-cell[data-turn="O"]:focus-visible {
+  outline-color: var(--red-player);
+}
+
+/* Forced Colors Mode (Windows High Contrast) fallbacks */
+@media (forced-colors: active) {
+  .interactive-cell,
+  .tactile-button,
+  .board-frame {
+    border: 1px solid ButtonText;
+    box-shadow: none;
+  }
+
+  .interactive-cell[data-winning="true"] {
+    outline: 3px solid Highlight;
+    outline-offset: -3px;
+  }
+}
+
+/* Respect reduced motion preferences cleanly without trapping elements invisible */
+@media (prefers-reduced-motion: reduce) {
+  .interactive-cell,
+  .tactile-button {
+    transition:
+      background-color 140ms ease,
+      border-color 140ms ease,
+      color 140ms ease,
+      opacity 140ms ease;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .interactive-cell[data-playable="true"]:hover {
+      transform: none;
+    }
+  }
+
+  .interactive-cell[data-playable="true"]:active,
+  .tactile-button:active:not(:disabled) {
+    transform: none;
+  }
 }
